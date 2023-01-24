@@ -10,4 +10,8 @@ data class Thumbnail(
     val extension: String?,
     @Json(name = "path")
     val path: String?
-)
+) {
+    fun getCompleteUrl(): String {
+        return path.plus("/portrait_xlarge.").plus(extension).replace("http", "https")
+    }
+}
