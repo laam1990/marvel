@@ -1,23 +1,22 @@
 package com.example.marvel
 
 import android.os.Bundle
-import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.Card
-import androidx.compose.material.CircularProgressIndicator
 import androidx.compose.material.Icon
 import androidx.compose.material.IconButton
 import androidx.compose.material.MaterialTheme
@@ -27,21 +26,22 @@ import androidx.compose.material.Text
 import androidx.compose.material.TextField
 import androidx.compose.material.TextFieldDefaults
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Favorite
+import androidx.compose.material.icons.filled.Share
 import androidx.compose.material.icons.rounded.Clear
 import androidx.compose.material.icons.rounded.Search
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.colorResource
-import androidx.compose.ui.semantics.Role.Companion.Image
-import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextAlign
@@ -49,11 +49,8 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
-import coil.compose.rememberAsyncImagePainter
-import coil.compose.rememberImagePainter
 import coil.request.ImageRequest
 import coil.size.Size
-import coil.transform.CircleCropTransformation
 import com.example.marvel.data.model.Character
 import com.example.marvel.data.model.Comics
 import com.example.marvel.data.model.Events
@@ -139,33 +136,75 @@ fun SearchViewPreview() {
 fun CharacterListItem(listCharacter: List<Character>, onItemClick: (Character) -> Unit) {
     LazyVerticalGrid(
         userScrollEnabled = true,
-        columns = GridCells.Fixed(3),
+        columns = GridCells.Adaptive(150.dp),
         modifier = Modifier
             .fillMaxWidth()
             .padding(PaddingValues(8.dp, 16.dp))
     ) {
         items(listCharacter.size) { index ->
-            Card(
-                backgroundColor = colorResource(id = R.color.white_marvel),
+            Column(
                 modifier = Modifier
-                    .padding(4.dp)
                     .fillMaxWidth()
-                    .clickable {
-                        onItemClick(listCharacter[index])
-                    },
-                elevation = 8.dp,
+                    .padding(4.dp)
             ) {
-                Log.e("COIL URL", listCharacter[index].thumbnail?.getCompleteUrl()?:"")
-                AsyncImage(
-                    model = ImageRequest.Builder(LocalContext.current)
-                        .data(listCharacter[index].thumbnail?.getCompleteUrl())
-                        .crossfade(true)
-                        .size(Size.ORIGINAL)
-                        .build(),
-                    contentDescription = "stringResource(R.string.description)",
-                    contentScale = ContentScale.Crop,
-                    modifier = Modifier.fillMaxSize()
-                )
+                Card(
+                    backgroundColor = colorResource(id = R.color.white_marvel),
+                    modifier = Modifier
+                        .padding(4.dp)
+                        .fillMaxWidth()
+                        .clickable {
+                            onItemClick(listCharacter[index])
+                        },
+                    elevation = 8.dp,
+                ) {
+                    Column {
+                        AsyncImage(
+                            model = ImageRequest.Builder(LocalContext.current)
+                                .data(listCharacter[index].thumbnail?.getCompleteUrl())
+                                .crossfade(true)
+                                .size(Size.ORIGINAL)
+                                .build(),
+                            contentDescription = "stringResource(R.string.description)",
+                            contentScale = ContentScale.Crop,
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .height(200.dp)
+                        )
+                        Text(
+                            modifier = Modifier
+                                .padding(8.dp)
+                                .fillMaxWidth(),
+                            text = listCharacter[index].name ?: "",
+                            fontSize = 14.sp,
+                            fontFamily = FontFamily.Monospace,
+                            textAlign = TextAlign.Center
+                        )
+                        Box(
+                            Modifier
+                                .padding(horizontal = 8.dp)
+                                .fillMaxWidth()
+                        ) {
+                            Row(modifier = Modifier.align(Alignment.CenterEnd)) {
+                                IconButton(onClick = { /*TODO*/ }) {
+                                    Icon(
+                                        Icons.Default.Favorite,
+                                        contentDescription = null,
+                                        tint = colorResource(R.color.red_marvel)
+                                    )
+                                }
+
+                                IconButton(onClick = { /*TODO*/ }) {
+                                    Icon(
+                                        Icons.Default.Share,
+                                        contentDescription = null,
+                                        tint = colorResource(R.color.red_marvel)
+                                    )
+                                }
+                            }
+                        }
+                    }
+
+                }
             }
         }
     }
