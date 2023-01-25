@@ -20,6 +20,10 @@ import javax.inject.Singleton
 @InstallIn(SingletonComponent::class)
 object AppModule {
 
+    @Singleton
+    @Provides
+    fun provideMoshi(): Moshi = Moshi.Builder().build()
+
     @Provides
     @Singleton
     fun provideAwsRetrofit(moshi: Moshi): Retrofit =

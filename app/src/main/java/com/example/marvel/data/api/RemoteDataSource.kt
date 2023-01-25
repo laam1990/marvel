@@ -6,6 +6,6 @@ import retrofit2.http.Query
 interface RemoteDataSource {
 
     suspend fun getCharacters(
-        @Query("name") name: String,
+        @Query("nameStartsWith") name: String,
     ): BaseResponseData
 }

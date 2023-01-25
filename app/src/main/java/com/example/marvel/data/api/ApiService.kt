@@ -8,7 +8,7 @@ interface ApiService {
 
     @GET("v1/public/characters")
     suspend fun getCharacters(
-        @Query("name") name: String,
+        @Query("nameStartsWith") name: String,
         @Query("orderBy") orderBy: String = "name",
         @Query("limit") limit: String = "20",
         @Query("ts") ts: String = "1",

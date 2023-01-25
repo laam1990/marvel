@@ -1,8 +1,9 @@
-package com.example.marvel
+package com.example.marvel.ui.character.activity
 
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.activity.viewModels
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
@@ -32,6 +33,7 @@ import androidx.compose.material.icons.rounded.Clear
 import androidx.compose.material.icons.rounded.Search
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -51,20 +53,23 @@ import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import coil.size.Size
+import com.example.marvel.data.model.BaseResponseData
 import com.example.marvel.data.model.Character
-import com.example.marvel.data.model.Comics
-import com.example.marvel.data.model.Events
-import com.example.marvel.data.model.Series
-import com.example.marvel.data.model.Stories
-import com.example.marvel.data.model.Summary
-import com.example.marvel.data.model.Thumbnail
-import com.example.marvel.data.model.Url
+import com.example.marvel.ui.character.viewmodel.CharacterViewModel
 import com.example.marvel.ui.theme.MarvelTheme
+import androidx.compose.runtime.getValue
+import com.example.marvel.data.util.Resource
+import com.example.marvel.R
+import dagger.hilt.android.AndroidEntryPoint
 
+@AndroidEntryPoint
 class MainActivity : ComponentActivity() {
-    override fun onCreate(savedInstanceState: Bundle?) {
 
+    private val viewModel: CharacterViewModel by viewModels()
+    override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        viewModel
         setContent {
             MarvelTheme {
                 // A surface container using the 'background' color from the theme
@@ -76,8 +81,8 @@ class MainActivity : ComponentActivity() {
                         topBar = {}
                     ) { content ->
                         Column(modifier = Modifier.padding(content)) {
-                            SearchViewPreview()
-                            CharacterListItemPreview()
+                            SearchViewPreview(viewModel)
+                            CharacterListItemPreview(viewModel)
                         }
                     }
                 }
@@ -87,14 +92,14 @@ class MainActivity : ComponentActivity() {
 }
 
 @Composable
-fun SearchView(state: MutableState<TextFieldValue>) {
+fun SearchView(viewModel: CharacterViewModel, state: MutableState<TextFieldValue>) {
     TextField(
         value = state.value,
         onValueChange = { onQueryChanged ->
             state.value = onQueryChanged
-            /*if (state.value.text.isNotEmpty()) {
-                //
-            }*/
+            if (state.value.text.isNotEmpty() && state.value.text.length >= 2) {
+                viewModel.getCharacter(state.value.text)
+            }
         },
         leadingIcon = {
             Icon(
@@ -125,11 +130,11 @@ fun SearchView(state: MutableState<TextFieldValue>) {
 }
 
 @Composable
-fun SearchViewPreview() {
+fun SearchViewPreview(viewModel: CharacterViewModel) {
     val textState = remember {
         mutableStateOf(TextFieldValue(""))
     }
-    SearchView(state = textState)
+    SearchView(viewModel, state = textState)
 }
 
 @Composable
@@ -210,10 +215,10 @@ fun CharacterListItem(listCharacter: List<Character>, onItemClick: (Character) -
     }
 }
 
-@Preview(showBackground = true, device = "id:pixel_6_pro")
+
 @Composable
-fun CharacterListItemPreview() {
-    val comicSummary =
+fun CharacterListItemPreview(viewModel: CharacterViewModel) {
+    /*val comicSummary =
         Summary(name = "Avengers: The Initiative (2007) #14", resourceURI = "", type = null)
     val listComicSummary = listOf(comicSummary)
 
@@ -256,16 +261,27 @@ fun CharacterListItemPreview() {
         thumbnail = thumbnail,
         urls = urls
     )
-    val listCharacter = listOf(character, character, character, character)
-    CharacterListItem(listCharacter, onItemClick = {
+    val listCharacter = listOf(character, character, character, character)*/
+    val status by viewModel.characterListLiveData.observeAsState()
+    when (status) {
+        is Resource.Loading -> {}
+        is Resource.Success -> {
+            (status as Resource.Success<BaseResponseData>).data?.let {
+                it.data?.characters?.let { characters ->
+                    CharacterListItem(characters, onItemClick = {
 
-    })
+                    })
+                }
+            }
+        }
+        else -> {/*TODO Error*/}
+    }
 }
 
 @Preview(showBackground = true, device = "id:pixel_6_pro")
 @Composable
 fun DefaultPreview() {
     MarvelTheme {
-        SearchViewPreview()
+        //SearchViewPreview()
     }
 }

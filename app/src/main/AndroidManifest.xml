@@ -12,9 +12,10 @@
         android:label="@string/app_name"
         android:supportsRtl="true"
         android:theme="@style/Theme.Marvel"
+        android:name=".MarvelApplication"
         tools:targetApi="31">
         <activity
-            android:name=".MainActivity"
+            android:name=".ui.character.activity.MainActivity"
             android:exported="true"
             android:label="@string/app_name"
             android:theme="@style/Theme.Marvel">
